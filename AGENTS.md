@@ -10,6 +10,8 @@ Enterprise URL shortener SaaS. Built as npm workspaces monorepo: Fastify 5 API +
 - **Queue**: BullMQ for async click processing
 - **Infra**: Docker Compose (local), Railway/Fly.io (prod)
 - **Deployment**: Frontend → Vercel (`NEXT_PUBLIC_API_URL`), Backend → TBD (Fly blocked, Railway pending)
+- **MCP**: Facebook Ads MCP (`meta-ads-mcp-server`) in opencode.jsonc — 54 tools, needs `FACEBOOK_APP_ID` + `FACEBOOK_APP_SECRET`
+- **GitHub**: `abeermeer/flux` — public, MIT license, branch `main`
 
 ## Architecture
 - Separate redirect domain (`go.flux.app`) from app domain (`flux.app`)
@@ -50,20 +52,23 @@ Enterprise URL shortener SaaS. Built as npm workspaces monorepo: Fastify 5 API +
 - **Backend API**: Not deployed — Fly.io account high-risk after card add, needs verification at https://fly.io/high-risk-unlock or switch to Railway
 
 ## Remaining Gaps
+- **Backend deployment**: Dockerfile + fly.toml ready, Fly.io blocked (high-risk flag) — try Railway or verify at https://fly.io/high-risk-unlock
+- **Facebook MCP**: `-32000 connection closed` — needs `FACEBOOK_APP_ID` + `FACEBOOK_APP_SECRET` env vars set
 - **GeoIP**: Click `country`/`city` is null. Needs MaxMind GeoIP DB lookup in redirect
 - **SSL auto-provisioning**: Domain routes give DNS instructions but cert provisioning via Let's Encrypt not automated
 - **Email**: No password reset, email verification, or transactional emails
 - **Full SAML validation**: ACS endpoint just trusts email — needs proper SAML assertion verification
 - **Rate limit tiers**: Currently global 100/min — needs per-plan limits
-- **Backend deployment**: Dockerfile + fly.toml created at root, but Fly.io blocked by high-risk flag
 
 ## Session Log (2026-06-22)
 - Deployed frontend to Vercel at `https://web-bay-tau-49.vercel.app`
 - Set `NEXT_PUBLIC_API_URL` env on Vercel project
 - Updated layout.tsx to use `${API}` instead of hardcoded localhost:3001
 - Created root `fly.toml` + `apps/api/Dockerfile` for backend deployment
-- Fly.io deploy blocked — account marked high-risk after adding card
+- Fly.io deploy blocked — account marked high-risk after card add
 - Backup plan: Railway (no card needed, $5 free credit)
+- Created GitHub repo `abeermeer/flux` — public, MIT license, professional README
+- Configured Facebook Ads MCP in opencode.jsonc (54 tools — accounts, campaigns, ads, insights, targeting, pages, creatives, media)
 
 ## Running Locally
 ```bash
