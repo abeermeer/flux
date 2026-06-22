@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+
+  links       Link[]
+  apiKeys     ApiKey[]
+  workspaces  WorkspaceMember[]
+  ownedOrgs   Workspace[]       @relation("WorkspaceOwner")
+  auditLogs   AuditLog[]
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  name      String
+  key       String   @unique
+  scopes    String   @default("read") // read, write, admin
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  branding  String?  // JSON: { logo, primaryColor, favicon, appDomain }
+  ssoConfig String?  // JSON: { provider, idpMetadataUrl, entityId, cert, enabled }
+  createdAt DateTime @default(now())
+
+  ownerId String
+  owner   User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members WorkspaceMember[]
+  links    Link[]
+  domains  Domain[]
+  webhooks Webhook[]
+  auditLogs AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String   // create, update, delete
+  entity    String   // link, domain, webhook, member
+  entityId  String?
+  metadata  String?  // JSON: previous values, changes
+  createdAt DateTime @default(now())
+
+  actorId    String?
+  actor      User?      @relation(fields: [actorId], references: [id])
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+  @@index([entity, entityId])
+}
+
+model WorkspaceMember {
+  role      WorkspaceRole @default(editor)
+  joinedAt  DateTime      @default(now())
+
+  userId      String
+  workspaceId String
+  user        User      @relation(fields: [userId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@id([userId, workspaceId])
+}
+
+enum WorkspaceRole {
+  admin
+  editor
+  viewer
+}
+
+model Domain {
+  id         String   @id @default(cuid())
+  domain     String   @unique
+  verified   Boolean  @default(false)
+  sslArn     String?
+  createdAt  DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  links       Link[]
+
+  @@index([domain])
+}
+
+model Link {
+  id          String    @id @default(cuid())
+  shortCode   String    @unique
+  destination String
+  title       String?
+  isActive    Boolean   @default(true)
+  expiresAt   DateTime?
+  maxClicks   Int?
+  password    String?   // bcrypt hash if password protected
+  rules       String?   // JSON: geo/device targeting rules
+  clickCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  domainId String?
+  domain   Domain?   @relation(fields: [domainId], references: [id])
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  createdById String?
+  createdBy   User?   @relation(fields: [createdById], references: [id])
+
+  clicks Click[]
+
+  @@index([shortCode])
+  @@index([domainId])
+  @@index([workspaceId])
+  @@index([createdById])
+}
+
+model Click {
+  id        String   @id @default(cuid())
+  timestamp DateTime @default(now())
+  ip        String?
+  userAgent String?
+  referer   String?
+  country   String?
+  city      String?
+  device    String?  // mobile, desktop, tablet
+  browser   String?
+  os        String?
+  bot       Boolean  @default(false)
+
+  linkId String
+  link   Link   @relation(fields: [linkId], references: [id])
+
+  @@index([linkId])
+  @@index([timestamp])
+  @@index([linkId, timestamp])
+}
+
+model Webhook {
+  id        String   @id @default(cuid())
+  url       String
+  events    String   @default("click") // comma-separated event types
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@index([workspaceId])
+}
