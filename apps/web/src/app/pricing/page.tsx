@@ -105,15 +105,16 @@ export default function Pricing() {
                   </li>
                 ))}
               </ul>
-              <button
-                className={`mt-8 w-full rounded-lg px-4 py-3 text-sm font-semibold ${
+              <a
+                href={tier.featured ? "/signup" : tier.name === "Enterprise" ? "/signup" : "/signup"}
+                className={`mt-8 block w-full rounded-lg px-4 py-3 text-center text-sm font-semibold ${
                   tier.featured
                     ? "bg-brand-600 text-white hover:bg-brand-700"
                     : "border border-gray-300 text-gray-900 hover:bg-gray-50"
                 }`}
               >
                 {tier.cta}
-              </button>
+              </a>
             </div>
           ))}
         </div>
