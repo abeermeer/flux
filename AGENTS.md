@@ -46,6 +46,16 @@ Enterprise URL shortener SaaS. Built as npm workspaces monorepo: Fastify 5 API +
 | Audit logs | `lib/audit.ts` | Logs every create/update/delete with actor |
 | Pricing | `web/src/app/pricing/page.tsx` | 3 tiers: $29, $99, Custom |
 
+## Frontend Pages
+| Route | File | Status |
+|---|---|---|
+| `/` | `page.tsx` | Enterprise landing — hero, shorten form, features grid, stats, CTA, footer |
+| `/links` | `links/page.tsx` | Link table with auth check |
+| `/pricing` | `pricing/page.tsx` | 3-tier pricing cards |
+| (root) | `layout.tsx` | Server component, metadata, Tailwind globals |
+| (root) | `globals.css` | Tailwind v4 + custom brand palette (indigo 50-900) |
+| (root) | `postcss.config.mjs` | Tailwind v4 PostCSS plugin |
+
 ## Deployments
 - **Frontend**: `https://web-bay-tau-49.vercel.app` (Vercel, abeermeer1 account)
   - `NEXT_PUBLIC_API_URL` set to `http://localhost:3001` (update when backend deployed)
@@ -68,7 +78,9 @@ Enterprise URL shortener SaaS. Built as npm workspaces monorepo: Fastify 5 API +
 - Fly.io deploy blocked — account marked high-risk after card add
 - Backup plan: Railway (no card needed, $5 free credit)
 - Created GitHub repo `abeermeer/flux` — public, MIT license, professional README
-- Configured Facebook Ads MCP in opencode.jsonc (54 tools — accounts, campaigns, ads, insights, targeting, pages, creatives, media)
+- Configured Facebook Ads MCP in opencode.jsonc (54 tools)
+- **Frontend overhaul**: Tailwind v4, custom brand palette, enterprise landing page (hero, features grid, stats, CTA, footer), updated pricing & links pages
+- Pushed to GitHub + redeployed Vercel
 
 ## Running Locally
 ```bash

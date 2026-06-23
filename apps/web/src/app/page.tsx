@@ -1,39 +1,83 @@
 "use client";
 
 import { useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+
+const ease = [0.21, 0.47, 0.32, 0.98] as const;
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: i * 0.12, ease },
+  }),
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+};
+
+const scaleOnHover = { scale: 1.03 };
+const tapScale = { scale: 0.97 };
 
 const features = [
   {
     title: "Custom Domains",
     desc: "Bring your own domain with DNS TXT verification. Keep your brand front and center on every link.",
-    icon: "🌐",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.715-6.744m0 0A8.997 8.997 0 0 0 21 12a9 9 0 0 0-9-9 8.997 8.997 0 0 0-7.716 4.256m14.43 0A8.99 8.99 0 0 1 12 21a8.99 8.99 0 0 1-5.857-2.256m0 0A8.997 8.997 0 0 1 3 12a8.997 8.997 0 0 1 2.256-5.744m0 0a8.99 8.99 0 0 1 5.744-2.256" />
+      </svg>
+    ),
   },
   {
     title: "Team Workspaces",
     desc: "Role-based access for admin, editor, and viewer. Collaborate without compromising control.",
-    icon: "👥",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+      </svg>
+    ),
   },
   {
     title: "White-Label Branding",
     desc: "Your logo, your colors, your favicon. The dashboard looks like it's yours — because it is.",
-    icon: "🎨",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 0 2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128m0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
+      </svg>
+    ),
   },
   {
     title: "A/B Split Testing",
     desc: "Route traffic to multiple destinations with percentage-based splits. Optimize your campaigns in real time.",
-    icon: "📊",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605" />
+      </svg>
+    ),
   },
   {
     title: "Geo & Device Targeting",
     desc: "Send users to different URLs based on country, device type, or browser. One link, many paths.",
-    icon: "🌍",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.715-6.744m0 0A9 9 0 0 0 12 3a9 9 0 0 0-8.715 5.256m16.43 0A8.997 8.997 0 0 1 12 21a8.997 8.997 0 0 1-5.857-2.256m0 0A8.997 8.997 0 0 1 3 12a8.997 8.997 0 0 1 2.256-5.744m0 0A8.99 8.99 0 0 1 12 3" />
+      </svg>
+    ),
   },
   {
     title: "Enterprise Security",
     desc: "SAML SSO, audit logs, API keys with scoped permissions, and abuse protection built in.",
-    icon: "🔒",
+    icon: (
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+      </svg>
+    ),
   },
 ];
 
@@ -50,6 +94,10 @@ export default function Home() {
   const [shortUrl, setShortUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const { scrollYProgress } = useScroll();
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -80,46 +128,89 @@ export default function Home() {
 
   return (
     <>
-      <header className="border-b border-gray-200 bg-white">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200/60 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-brand-600">Flux</span>
-          </div>
+          <motion.a
+            href="/"
+            className="flex items-center gap-2"
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
+              F
+            </div>
+            <span className="text-lg font-bold text-gray-900">Flux</span>
+          </motion.a>
           <nav className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-            <a href="#features" className="hover:text-gray-900">Features</a>
-            <a href="#pricing" className="hover:text-gray-900">Pricing</a>
+            <a href="#features" className="transition-colors hover:text-gray-900">Features</a>
+            <a href="#pricing" className="transition-colors hover:text-gray-900">Pricing</a>
           </nav>
           <div className="flex items-center gap-3">
             <a
               href="/login"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900"
+              className="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
             >
               Sign in
             </a>
-            <a
+            <motion.a
               href="/signup"
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700"
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
             >
               Get started
-            </a>
+            </motion.a>
           </div>
         </div>
       </header>
 
-      <section className="px-6 pt-24 pb-16 text-center">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="text-5xl font-bold tracking-tight text-gray-900 md:text-6xl">
+      <motion.section
+        style={{ opacity: heroOpacity, scale: heroScale }}
+        className="relative overflow-hidden px-6 pt-32 pb-20 text-center"
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-brand-50/80 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[600px] -translate-x-1/2 rounded-full bg-brand-200/40 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 right-0 h-60 w-80 rounded-full bg-brand-300/20 blur-3xl" />
+
+        <motion.div
+          className="relative mx-auto max-w-3xl"
+          initial="hidden"
+          animate="visible"
+          variants={stagger}
+        >
+          <motion.div
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-4 py-1.5 text-xs font-medium text-brand-700"
+            variants={fadeInUp}
+            custom={0}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+            Now in public beta
+          </motion.div>
+
+          <motion.h1
+            className="text-5xl font-bold tracking-tight text-gray-900 md:text-6xl lg:text-7xl"
+            variants={fadeInUp}
+            custom={1}
+          >
             Shorten links.{" "}
-            <span className="text-brand-600">Own your brand.</span>
-          </h1>
-          <p className="mt-6 text-lg text-gray-600">
+            <span className="bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent">
+              Own your brand.
+            </span>
+          </motion.h1>
+
+          <motion.p
+            className="mt-6 text-lg leading-relaxed text-gray-600 md:text-xl"
+            variants={fadeInUp}
+            custom={2}
+          >
             Enterprise-grade link management with custom domains, team workspaces,
             and advanced targeting — without the enterprise price tag.
-          </p>
+          </motion.p>
 
-          <form
+          <motion.form
             onSubmit={handleSubmit}
             className="mx-auto mt-10 flex max-w-xl flex-col gap-3 sm:flex-row"
+            variants={fadeInUp}
+            custom={3}
           >
             <input
               type="url"
@@ -127,124 +218,208 @@ export default function Home() {
               onChange={(e) => setUrl(e.target.value)}
               placeholder="Paste a long URL..."
               required
-              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none"
+              className="flex-1 rounded-lg border border-gray-300 px-4 py-3 text-sm shadow-sm transition-all focus:border-brand-400 focus:ring-2 focus:ring-brand-200 focus:outline-none"
             />
             <input
               type="text"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               placeholder="Custom slug (optional)"
-              className="rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-200 focus:outline-none sm:w-40"
+              className="rounded-lg border border-gray-300 px-4 py-3 text-sm shadow-sm transition-all focus:border-brand-400 focus:ring-2 focus:ring-brand-200 focus:outline-none sm:w-40"
             />
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              className="rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+              className="rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 disabled:opacity-50"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               {loading ? "Shortening..." : "Shorten"}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
 
           {error && (
-            <p className="mt-4 text-sm text-red-600">{error}</p>
+            <motion.p
+              className="mt-4 text-sm text-red-600"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              {error}
+            </motion.p>
           )}
 
           {shortUrl && (
-            <div className="mt-6 inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+            <motion.div
+              className="mt-6 inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 shadow-sm"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               <span className="font-medium">Done:</span>
               <a
                 href={shortUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline"
+                className="underline underline-offset-2"
               >
                 {shortUrl}
               </a>
-              <button
+              <motion.button
                 onClick={() => navigator.clipboard.writeText(shortUrl)}
-                className="ml-2 rounded bg-green-200 px-2 py-1 text-xs font-medium hover:bg-green-300"
+                className="ml-2 rounded bg-green-200 px-2 py-1 text-xs font-medium transition-colors hover:bg-green-300"
+                whileHover={{ scale: 1.05 }}
               >
                 Copy
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           )}
 
-          <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-400">
-            <span className="flex items-center gap-1">🔒 Free for up to 100 links</span>
-            <span className="flex items-center gap-1">⚡ No credit card required</span>
-          </div>
-        </div>
-      </section>
+          <motion.div
+            className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-400"
+            variants={fadeInUp}
+            custom={4}
+          >
+            <span className="flex items-center gap-1.5">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+              </svg>
+              Free for up to 100 links
+            </span>
+            <span className="flex items-center gap-1.5">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 0 4.5 6h.75m14.25 0v-.75A.75.75 0 0 0 18.75 4.5H18M3.75 12.5v3.25m0 0h.75m-.75 0H3m15.75-3.25v3.25m0 0h.75m-.75 0H18" />
+              </svg>
+              No credit card required
+            </span>
+          </motion.div>
+        </motion.div>
+      </motion.section>
 
-      <section id="features" className="border-t border-gray-200 bg-white px-6 py-20">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-3xl font-bold text-gray-900">
+      <motion.section
+        id="features"
+        className="border-t border-gray-200 bg-white px-6 py-24"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={stagger}
+      >
+        <motion.div variants={fadeInUp} custom={0}>
+          <h2 className="text-center text-3xl font-bold text-gray-900 md:text-4xl">
             Everything enterprises need
           </h2>
           <p className="mt-4 text-center text-gray-600">
             Built for teams that need reliability, control, and scale.
           </p>
-          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className="rounded-xl border border-gray-200 p-6 transition hover:border-brand-200 hover:shadow-sm"
-              >
-                <span className="text-2xl">{f.icon}</span>
-                <h3 className="mt-4 font-semibold text-gray-900">{f.title}</h3>
-                <p className="mt-2 text-sm text-gray-600 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </motion.div>
 
-      <section className="border-t border-gray-200 px-6 py-20">
+        <motion.div
+          className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          variants={stagger}
+        >
+          {features.map((f) => (
+            <motion.div
+              key={f.title}
+              className="group rounded-xl border border-gray-200 p-6 transition-colors hover:border-brand-200"
+              variants={fadeInUp}
+              whileHover={{ y: -4, boxShadow: "0 12px 24px -8px rgba(99, 102, 241, 0.15)" }}
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-100">
+                {f.icon}
+              </div>
+              <h3 className="mt-5 font-semibold text-gray-900">{f.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">{f.desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.section>
+
+      <motion.section
+        className="border-t border-gray-200 px-6 py-24"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={stagger}
+      >
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s) => (
-              <div key={s.label} className="text-center">
-                <p className="text-4xl font-bold text-brand-600">{s.value}</p>
+              <motion.div
+                key={s.label}
+                className="text-center"
+                variants={fadeInUp}
+              >
+                <p className="text-4xl font-bold text-brand-600 lg:text-5xl">
+                  {s.value}
+                </p>
                 <p className="mt-2 text-sm text-gray-600">{s.label}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section id="pricing" className="border-t border-gray-200 bg-brand-600 px-6 py-20 text-center">
-        <h2 className="text-3xl font-bold text-white">
+      <motion.section
+        id="pricing"
+        className="relative overflow-hidden border-t border-gray-200 bg-gray-900 px-6 py-24 text-center"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={stagger}
+      >
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[600px] -translate-x-1/2 rounded-full bg-brand-500/10 blur-3xl" />
+
+        <motion.h2
+          className="relative text-3xl font-bold text-white md:text-4xl"
+          variants={fadeInUp}
+        >
           Start shortening links today
-        </h2>
-        <p className="mt-4 text-lg text-brand-200">
+        </motion.h2>
+        <motion.p
+          className="relative mt-4 text-lg text-gray-400"
+          variants={fadeInUp}
+          custom={1}
+        >
           Free tier included. Upgrade when you outgrow it.
-        </p>
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <a
+        </motion.p>
+        <motion.div
+          className="relative mt-8 flex items-center justify-center gap-4"
+          variants={fadeInUp}
+          custom={2}
+        >
+          <motion.a
             href="/signup"
-            className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-brand-700 hover:bg-gray-100"
+            className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-gray-900 shadow-sm transition-colors hover:bg-gray-100"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
           >
             Get started free
-          </a>
-          <a
+          </motion.a>
+          <motion.a
             href="/pricing"
-            className="rounded-lg border border-white px-6 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+            className="rounded-lg border border-gray-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-gray-500"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
           >
             View pricing
-          </a>
-        </div>
-      </section>
+          </motion.a>
+        </motion.div>
+      </motion.section>
 
       <footer className="border-t border-gray-200 bg-white px-6 py-12">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">
+              F
+            </div>
+            <span className="text-sm font-semibold text-gray-700">Flux</span>
+          </div>
           <span className="text-sm text-gray-500">
             &copy; {new Date().getFullYear()} Flux. All rights reserved.
           </span>
           <div className="flex gap-6 text-sm text-gray-500">
-            <a href="#features" className="hover:text-gray-700">Features</a>
-            <a href="/pricing" className="hover:text-gray-700">Pricing</a>
-            <a href="#" className="hover:text-gray-700">Privacy</a>
-            <a href="#" className="hover:text-gray-700">Terms</a>
+            <a href="#features" className="transition-colors hover:text-gray-700">Features</a>
+            <a href="/pricing" className="transition-colors hover:text-gray-700">Pricing</a>
+            <a href="#" className="transition-colors hover:text-gray-700">Privacy</a>
+            <a href="#" className="transition-colors hover:text-gray-700">Terms</a>
           </div>
         </div>
       </footer>
