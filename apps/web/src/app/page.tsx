@@ -177,19 +177,10 @@ export default function Home() {
           animate="visible"
           variants={stagger}
         >
-          <motion.div
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-4 py-1.5 text-xs font-medium text-brand-700"
-            variants={fadeInUp}
-            custom={0}
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-            Now in public beta
-          </motion.div>
-
           <motion.h1
             className="text-5xl font-bold tracking-tight text-gray-900 md:text-6xl lg:text-7xl"
             variants={fadeInUp}
-            custom={1}
+            custom={0}
           >
             Shorten links.{" "}
             <span className="bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent">
@@ -200,7 +191,7 @@ export default function Home() {
           <motion.p
             className="mt-6 text-lg leading-relaxed text-gray-600 md:text-xl"
             variants={fadeInUp}
-            custom={2}
+            custom={1}
           >
             Enterprise-grade link management with custom domains, team workspaces,
             and advanced targeting — without the enterprise price tag.
@@ -210,7 +201,7 @@ export default function Home() {
             onSubmit={handleSubmit}
             className="mx-auto mt-10 flex max-w-xl flex-col gap-3 sm:flex-row"
             variants={fadeInUp}
-            custom={3}
+            custom={2}
           >
             <input
               type="url"
@@ -276,7 +267,7 @@ export default function Home() {
           <motion.div
             className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-400"
             variants={fadeInUp}
-            custom={4}
+            custom={3}
           >
             <span className="flex items-center gap-1.5">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

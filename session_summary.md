@@ -10,11 +10,22 @@
 2. Root `fly.toml` + `apps/api/Dockerfile` for backend deployment
 3. GitHub repo with all source, README, LICENSE (MIT)
 4. Facebook MCP configured in opencode.jsonc (needs env vars)
-5. **Frontend overhaul**:
+5. **Frontend v1**:
    - Tailwind CSS v4 with custom indigo brand palette
    - Enterprise landing page: nav header, hero with shorten form, 6-feature grid, stats section, CTA banner, footer
    - Updated pricing page with 3-tier cards matching brand
    - Updated /links page with functional link table (auth-gated)
+
+6. **Frontend v2 (animations + polish)**:
+   - Framer Motion for scroll-reveal animations, stagger children, hover micro-interactions
+   - Inter font from Google Fonts via next/font
+   - Animated hero: scroll-based opacity/scale, gradient background, stagger text reveal
+   - Feature cards: scroll-fade in with stagger, lift effect on hover with brand shadow
+   - Sticky nav with backdrop blur, gradient hero glow
+   - Micro-interactions: button scale on hover/tap, card border transitions
+   - Dark CTA section with gradient background
+   - SVG favicon with brand color
+   - Smooth scroll, custom selection color
 
 ## What's Blocked
 - Backend deployment — Fly.io high-risk flag (verify at https://fly.io/high-risk-unlock or use Railway)

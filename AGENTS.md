@@ -12,6 +12,7 @@ Enterprise URL shortener SaaS. Built as npm workspaces monorepo: Fastify 5 API +
 - **Deployment**: Frontend → Vercel (`NEXT_PUBLIC_API_URL`), Backend → TBD (Fly blocked, Railway pending)
 - **MCP**: Facebook Ads MCP (`meta-ads-mcp-server`) in opencode.jsonc — 54 tools, needs `FACEBOOK_APP_ID` + `FACEBOOK_APP_SECRET`
 - **GitHub**: `abeermeer/flux` — public, MIT license, branch `main`
+- **Frontend**: Tailwind v4, Framer Motion, Inter font, SVG favicon
 
 ## Architecture
 - Separate redirect domain (`go.flux.app`) from app domain (`flux.app`)
@@ -49,11 +50,11 @@ Enterprise URL shortener SaaS. Built as npm workspaces monorepo: Fastify 5 API +
 ## Frontend Pages
 | Route | File | Status |
 |---|---|---|
-| `/` | `page.tsx` | Enterprise landing — hero, shorten form, features grid, stats, CTA, footer |
+| `/` | `page.tsx` | Animated enterprise landing — Framer Motion hero (stagger, scroll fade, gradient bg), features grid (stagger + hover lift), stats, CTA, footer |
 | `/links` | `links/page.tsx` | Link table with auth check |
 | `/pricing` | `pricing/page.tsx` | 3-tier pricing cards |
-| (root) | `layout.tsx` | Server component, metadata, Tailwind globals |
-| (root) | `globals.css` | Tailwind v4 + custom brand palette (indigo 50-900) |
+| (root) | `layout.tsx` | Server component, Inter font, metadata, SVG favicon |
+| (root) | `globals.css` | Tailwind v4 + custom brand palette, smooth scroll, selection color |
 | (root) | `postcss.config.mjs` | Tailwind v4 PostCSS plugin |
 
 ## Deployments
@@ -76,11 +77,11 @@ Enterprise URL shortener SaaS. Built as npm workspaces monorepo: Fastify 5 API +
 - Updated layout.tsx to use `${API}` instead of hardcoded localhost:3001
 - Created root `fly.toml` + `apps/api/Dockerfile` for backend deployment
 - Fly.io deploy blocked — account marked high-risk after card add
-- Backup plan: Railway (no card needed, $5 free credit)
 - Created GitHub repo `abeermeer/flux` — public, MIT license, professional README
 - Configured Facebook Ads MCP in opencode.jsonc (54 tools)
-- **Frontend overhaul**: Tailwind v4, custom brand palette, enterprise landing page (hero, features grid, stats, CTA, footer), updated pricing & links pages
-- Pushed to GitHub + redeployed Vercel
+- **Frontend v1**: Tailwind v4, custom brand palette, landing page (hero, features, stats, CTA, footer), pricing & links pages
+- **Frontend v2 (animations)**: Framer Motion, Inter font, scroll-reveal, stagger children, hover micro-interactions, sticky blur nav, gradient hero, SVG favicon
+- Pushed to GitHub + redeployed Vercel (main branch, production alias)
 
 ## Running Locally
 ```bash
